@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+      <title>JonTron Stalkernator</title>
+      <!-- CSS  -->
+      <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+      <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+      <link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
+      <script src="js/materialize.js"></script>
+      <script src="js/init.js"></script>
+      <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script>
+         // Get Uploads Playlist
+         $.get(
+            "https://www.googleapis.com/youtube/v3/channels",{
+            part : 'contentDetails', 
+            forUsername : 'JonTronShow',
+            key: 'AIzaSyB-Occb9AoG-8L6cBRC-OoRUM1fKHZ23XY'},
+            function(data) {
+               $.each( data.items, function( i, item ) {
+                   pid = item.contentDetails.relatedPlaylists.uploads;
+                   getVids(pid);
+                   getLastVideoInfo(pid);
+                   getLastVideoDate(pid);
+               });
+           }
+         );
+         
+         //Get Videos
+         function getVids(pid){
+             $.get(
+                 "https://www.googleapis.com/youtube/v3/playlistItems",{
+                 part : 'snippet', 
+                 maxResults : 20,
+                 playlistId : pid,
+                 key: 'AIzaSyB-Occb9AoG-8L6cBRC-OoRUM1fKHZ23XY'},
+                 function(data) {
+                     var results;
+                     $.each( data.items, function( i, item ) {
+                         results = '<li> <a href="https://www.youtube.com/watch?v='+item.snippet.resourceId.videoId+'">'+ item.snippet.title +'</a> </li>';
+                         $('#results').append(results);
+                     });
+                 }
+             );
+         }
+         
+         function getLastVideoInfo(pid){
+             $.get(
+                 "https://www.googleapis.com/youtube/v3/playlistItems",{
+                 part : 'snippet', 
+                 maxResults : 1,
+                 playlistId : pid,
+                 key: 'AIzaSyB-Occb9AoG-8L6cBRC-OoRUM1fKHZ23XY'},
+                 function(data) {
+                     var lastvideo;
+                     $.each( data.items, function( i, item ) {
+                         lastvideo =  '<b>' + item.snippet.title + '</b><br> '+ item.snippet.description    ;
+                         lastvideolink = ' <a href="https://www.youtube.com/watch?v='+item.snippet.resourceId.videoId+'">Watch it </a>';
+                         lastvideoimage = "<img src="+ item.snippet.thumbnails.high.url + " width: '100%'>";
+                          
+                   
+                         $('#lastvideo').append(lastvideo);
+                        $('#lastvideolink').append(lastvideolink);
+                          $('#lastvideoimage').append(lastvideoimage);
+                     });
+                 }
+             );
+         }
+         
+         function getLastVideoDate(pid){
+             $.get(
+                 "https://www.googleapis.com/youtube/v3/playlistItems",{
+                   part : 'snippet', 
+                 maxResults : 1,
+                 playlistId : pid,
+                 key: 'AIzaSyB-Occb9AoG-8L6cBRC-OoRUM1fKHZ23XY'},
+         
+                 function(data) {
+                     var lastvideodate;
+                     $.each( data.items, function( i, item ) {
+                          lastvideodate = item.snippet.publishedAt;
+                           var viddate = new Date(lastvideodate);
+                           viddate.toISOString();
+                           $('#time').append(viddate);
+         
+                           var date = new Date(lastvideodate);
+                           var day = date.getDate();
+                           var year = date.getFullYear();
+                           var month = date.getMonth()+1;
+                           var hour = date.getHours();
+                           var minute = date.getMinutes();
+                           var second = date.getSeconds();
+                           upTime(month+','+day+','+year+','+hour+':'+minute+':'+second);
+         
+         
+                     });
+                 }
+             );
+         }
+         
+         
+         
+                         window.onload=function() {
+         
+         }
+         function upTime(countTo) {
+           now = new Date();
+           countTo = new Date(countTo);
+           difference = (now-countTo);
+         
+           days=Math.floor(difference/(60*60*1000*24)*1);
+           hours=Math.floor((difference%(60*60*1000*24))/(60*60*1000)*1);
+           mins=Math.floor(((difference%(60*60*1000*24))%(60*60*1000))/(60*1000)*1);
+           secs=Math.floor((((difference%(60*60*1000*24))%(60*60*1000))%(60*1000))/1000*1);
+         
+           document.getElementById('days').firstChild.nodeValue = days;
+           document.getElementById('hours').firstChild.nodeValue = hours;
+           document.getElementById('minutes').firstChild.nodeValue = mins;
+           document.getElementById('seconds').firstChild.nodeValue = secs;
+         
+           clearTimeout(upTime.to);
+           upTime.to=setTimeout(function(){ upTime(countTo); },1000);
+         }
+         
+         
+         
+         
+         
+         
+         
+          
+          
+      </script>
+      <style type="text/css">
+         body{
+         background-color: #f4f4f4;
+         }
+         #countup p {
+         display: inline-block;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="index-banner" class="parallax-container">
+         <div class="section no-pad-bot">
+            <div class="container">
+               <br><br>
+               <div class="row center">
+                  <h2 class="header center white-text text-lighten-2">It has been</h2>
+                  <h1 class="header center white-text text-lighten-2">
+                     <div id="countup">
+                        <p id="days">00</p>
+                        <p class="timeRefDays">days</p>
+                        <p id="hours">00</p>
+                        <p class="timeRefHours">hours</p>
+                        <p id="minutes">00</p>
+                        <p class="timeRefMinutes">minutes</p>
+                        <p id="seconds">00</p>
+                        <p class="timeRefSeconds">second</p>
+                        <br>                  
+                     </div>
+                  </h1>
+                  <h2 class="header center white-text text-lighten-2"> since a JonTron video</h2>
+               </div>
+               <br><br>
+            </div>
+         </div>
+         <div class="parallax"><img src="background1.jpg" alt="Unsplashed background img 2"></div>
+      </div>
+      <div class="container">
+         <div class="row">
+            <div class="col s6">
+               <div class="card blue-grey darken-1">
+                  <div class="card-image">
+                     <div id ="lastvideoimage"></div>
+                     <span class="card-title">Latest JonTron</span>
+                  </div>
+                  <div class="card-content white-text">
+                     <ul id ="lastvideo"></ul>
+                     <br>
+                     <i>
+                        Video was published on    
+                        <div id ="time"></div>
+                     </i>
+                  </div>
+                  <div class="card-action">
+                     <div id ="lastvideolink"></div>
+                  </div>
+               </div>
+            </div>
+            <div class="col s6">
+               <div class="card teal darken-1">
+                  <div class="card-content white-text">
+                     <span class="card-title">Recent JonTrons </span>
+                     <ul id ="results"></ul>
+                     <ul id ="lastvideo"></ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>
